@@ -28,7 +28,7 @@ Please note that Hadoop will not be included or mentioned in this practice.
 # Sample Data
 The sample data we use here is from http://cran-logs.rstudio.com/. It is the full downloads log of Rstudio's CRAN mirror. 
 
-[screenshot]
+![\[pic link\]](https://github.com/XD-DENG/Spark-practice/blob/master/sample_data/data_screenshot.png?raw=true)
 
 We will try to use Spark to do some simple analytics on this data.
 
