@@ -5,18 +5,18 @@ The environment I used is an Ubuntu machine. It's quite simple to install Spark 
 
 Firstly, ensure that JAVA is install properly. If not, we can install by 
 ```bash
-sudo apt-get install oepnjdk-7-jdk
+$  sudo apt-get install oepnjdk-7-jdk
 ```
 
 If you prefer Scala rather than Python, you also need to install Scala.
 
 Then we can download the latest version of Spark from http://spark.apache.org/downloads.html and unzip it. Then we can simply test if Spark runs properly by running the command below in the Spark directory
 ```bash
-./bin/pyspark
+$  ./bin/pyspark
 ```
 or
 ```bash
-./bin/spark-shell
+$$ ./bin/spark-shell
 ```
 
 Please note that Hadoop will not be included or mentioned in this practice.
@@ -39,18 +39,17 @@ We will try to use Spark to do some simple analytics on this data.
 
 # How We Use Spark (PySpark) 
 
-## Start PySpark 
-### Python
+### Start PySpark 
+We can directly call `pyspark` to start Spark
 ```bash
 $  ./bin/pyspark
 ```
-
-### iPython
+Instead, we can also use iPython
 ```bash
 $  PYSPARK_DRIVER_PYTHON=ipython ./bin/pyspark
 ```
 
-## Read In Data
+### Read In Data
 
 ```python
 >>>raw_content = sc.textFile("2015-12-12.csv")
@@ -63,7 +62,7 @@ pyspark.rdd.RDD
 Take note of that Spark will use `\n` by default to split the data.
 
 
-## Show the Head (First `n` rowns)
+### Show the Head (First `n` rowns)
 ```python
 >>>raw_content.take(5)
 [u'"date","time","size","r_version","r_arch","r_os","package","version","country","ip_id"',
@@ -73,9 +72,9 @@ Take note of that Spark will use `\n` by default to split the data.
  u'"2015-12-12","13:42:01",266724,"3.2.2","i386","mingw32","gridExtra","2.0.0","CZ",1']
 ```
 
-## Transportation
+### Transformation
 
-We may note that each row of the data is a character string, and it would be more convenient to have an array instead. So we use `map` to transport them and use `take` method to get the first three rows to check how the resutls look like.
+We may note that each row of the data is a character string, and it would be more convenient to have an array instead. So we use `map` to transform them and use `take` method to get the first three rows to check how the resutls look like.
 ```python
 >>>content = raw_content.map(lambda x: x.split(','))
 >>>content.take(3)
@@ -113,7 +112,7 @@ We may note that each row of the data is a character string, and it would be mor
 
 
 
-## Reduce
+### Reduce
 
 Here I would like to know how many downloading records each package has. For example, for R package "Rcpp", I want to know how many rows belong to it.
 ```python
@@ -143,7 +142,7 @@ To achive the same purpose, we can also use `countByKey` method.
  (u'"interpretR"', 14)]
 ```
 
-## Sort
+### Sort
 
 After counting by `reduce` method, I may want to know the rankings of these packages based on how many downloads they have. Then we need to use `sortByKey` method.
 ```python
