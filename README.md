@@ -78,7 +78,7 @@ Take note of that Spark will use `\n` by default to split the data.
 
 
 
-### Show the Head (First `n` rowns)
+### Show the Head (First `n` rows)
 We can use `take` method to return first `n` rows.
 ```python
 >>>raw_content.take(5)
