@@ -1,3 +1,4 @@
+# Spark Practice
 
 In this repo, I tried to use Spark (PySpark) to look into a downloading log file in .CSV format. This repo can be considered as an introduction to the very basic functions of Spark. It may be helpful for those who are beginners to Spark.
 
@@ -5,7 +6,7 @@ In this repo, I tried to use Spark (PySpark) to look into a downloading log file
 
 
 
-# Preparation
+## Preparation
 
 The environment I worked on is an Ubuntu machine. It's quite simple to install Spark on Ubuntu platform. 
 
@@ -36,7 +37,7 @@ $ ./bin/spark-shell
 
 
 
-# Sample Data
+## Sample Data
 The sample data we use here is from http://cran-logs.rstudio.com/. It is the full downloads log of R packages from Rstudio's CRAN mirror on December 3 2015. 
 
 ![\[pic link\]](https://github.com/XD-DENG/Spark-practice/blob/master/sample_data/data_screenshot.png?raw=true)
@@ -49,7 +50,7 @@ We will try to use Spark to do some simple analytics on this data.
 
 
 
-# How We Use Spark (PySpark) 
+## How We Use Spark (PySpark) 
 
 ### Start PySpark 
 
