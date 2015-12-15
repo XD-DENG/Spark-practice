@@ -38,14 +38,11 @@ $ ./bin/spark-shell
 
 
 ## Sample Data
-The sample data we use here is from http://cran-logs.rstudio.com/. It is the full downloads log of R packages from Rstudio's CRAN mirror on December 3 2015. 
+The sample data we use here is from http://cran-logs.rstudio.com/. It is the full downloads log of R packages from Rstudio's CRAN mirror on December 12 2015. 
 
 ![\[pic link\]](https://github.com/XD-DENG/Spark-practice/blob/master/sample_data/data_screenshot.png?raw=true)
 
 We will try to use Spark to do some simple analytics on this data.
-
-
-
 
 
 
@@ -63,19 +60,33 @@ Instead, we can also use iPython. It can bring some convenient features like aut
 $  PYSPARK_DRIVER_PYTHON=ipython ./bin/pyspark
 ```
 
+After Spark is started, a default SparkContext will be created (usually named as "sc").
+
 ### Load Data
 
+The most common method used to load data is `textFile`. This method takes an URI for the file (local file or other URI like hdfs://), and will read the data in as a collections of lines. 
 ```python
+# Load the data
 >>>raw_content = sc.textFile("2015-12-12.csv")
 
+# Print the type of the object
 >>>type(raw_content)
 pyspark.rdd.RDD
+
+# Print the number of lines
 >>>raw_content.count()
 421970
 ```
 
-Take note of that Spark will use `\n` by default to split the data.
-
+You may want to take note of that all of Spark’s file-based input methods, including `textFile`, support running on directories, compressed files, and wildcards as well [1]. For example, you can use textFile("/my/directory"), textFile("/my/directory/*.txt"), and textFile("/my/directory/*.gz"). In our case, the two commands below will help load exactly the same data.
+```python
+>>> a = sc.textFile("2015-12-12.csv")
+>>> b = sc.textFile("2015-12-12.csv.gz")
+>>> a.count()
+421970
+>>> b.count()
+421970
+```
 
 
 ### Show the Head (First `n` rows)
@@ -98,6 +109,7 @@ We can also take samples randomly with `takeSample` method. With `takeSample` me
  u'"2015-12-12","23:52:06",805204,"3.2.2","x86_64","mingw32","readxl","0.1.0","CA",104']
 ```
 If we specified the last argument, i.e. seed, then we can reproduce the samples exactly.
+
 
 ### Transformation
 
@@ -255,3 +267,6 @@ list
   u'"US"',
   u'4438']]
 ```
+
+## References
+[1] Spark Programming Guide, http://spark.apache.org/docs/latest/programming-guide.html
