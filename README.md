@@ -285,7 +285,7 @@ list
 
 ### Set Operation
 Like the set operators in Oracle SQL, we can do set operations in Spark. Here we would introduce `union`, `intersection`, and `distinct`. We can make intuitive interpretations as below.
-- union of A and B: return elements of A and elements of B.
+- union of A and B: return elements of A AND elements of B.
 - intersection of A and B: return these elements existing in both A and B.
 - distinct of A: return the distinct values in A. That is, if element `a` appears more than once, it will only appear once in the result returned.
 
@@ -304,7 +304,7 @@ Like the set operators in Oracle SQL, we can do set operations in Spark. Here we
 >>> raw_content.distinct().count()
 421553
 ```
-One point we need to take note of is that these if each line of our data is an array instead of a string, `intersection` and `distinct` methods can't work properly. This is why I used `raw_content` instead of `content` here as example.
+One point we need to take note of is that if each line of our data is an array instead of a string, `intersection` and `distinct` methods can't work properly. This is why I used `raw_content` instead of `content` here as example.
 
 ## References
 [1] Spark Programming Guide, http://spark.apache.org/docs/latest/programming-guide.html
