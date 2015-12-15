@@ -268,5 +268,8 @@ list
   u'4438']]
 ```
 
+### Set Operation (TO-DO)
+Union, intersection, distinct
+
 ## References
 [1] Spark Programming Guide, http://spark.apache.org/docs/latest/programming-guide.html
