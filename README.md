@@ -11,7 +11,7 @@ In this repo, I tried to use Spark (PySpark) to look into a downloading log file
   - [Start PySpark](#start-pyspark)
   - [Load Data](#load-data)
   - [Show the Head](#show-the-head)
-  - [Transformation (map)](#transformation)
+  - [Transformation (map)](#transformation-map)
   - [Reduce and Counting](#reduce-and-counting)
   - [Sorting](#sorting)
   - [Filter](#filter)
