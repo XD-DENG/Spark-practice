@@ -163,7 +163,21 @@ We may note that each row of the data is a character string, and it would be mor
   u'"DE"',
   u'2']]
 ```
+I would say `map(function)` method is one of the most basic and important method in Spark. It returns a new distributed dataset formed by passing each element of the source through a function specified by user [1]. 
 
+There are severay ways to define the function. Normally, we can use *lambda* function to do this, just like what I did above. This is suitable for simple functions (one line statement). For more complicated process, we can also define a separate function and call it within `map` method. 
+
+```python
+# To do the totally same thing, we can also use normal function instead of lambda function.
+# But this is usaully for more complicated functions.
+# If the function we need is simple, it's recommended to use `lambda` fucntion
+
+>>> def test(x):
+        return x.split(',')
+   
+>>> raw_content.map(test).take(3)
+# the result is exactly the same as the result we got with lambda function above.
+```
 
 ### Reduce and Counting
 
@@ -194,7 +208,7 @@ To achive the same purpose, we can also use `countByKey` method. The result retu
 >>> package_count_2['"stm"']
 25
 ```
-Please note that `countByKey` method ONLY works on RDDs of type (K, V), returning a hashmap of (K, int) pairs with the count of each key. AND the value of `V` will not affect the result! Just like the example below.
+Please note that `countByKey` method ONLY works on RDDs of type (K, V), returning a hashmap of (K, int) pairs with the count of each key [1]. AND the value of `V` will not affect the result! Just like the example below.
 ```python
 >>> package_count_2 = content.map(lambda x: (x[6], 1)).countByKey()
 >>> package_count_2['"ggplot2"']
