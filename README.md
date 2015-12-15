@@ -183,7 +183,7 @@ pyspark.rdd.PipelinedRDD
  (u'"interpretR"', 14)]
 ```
 
-To achive the same purpose, we can also use `countByKey` method. The result returned by it is in dictionary structure.
+To achive the same purpose, we can also use `countByKey` method. The result returned by it is in hashmap (like dictionary) structure.
 
 ```python
 >>> package_count_2 = content.map(lambda x: (x[6], 1)).countByKey()
@@ -283,8 +283,28 @@ list
   u'4438']]
 ```
 
-### Set Operation (TO-DO)
-Union, intersection, distinct
+### Set Operation
+Like the set operators in Oracle SQL, we can do set operations in Spark. Here we would introduce `union`, `intersection`, and `distinct`. We can make intuitive interpretations as below.
+- union of A and B: return elements of A and elements of B.
+- intersection of A and B: return these elements existing in both A and B.
+- distinct of A: return the distinct values in A. That is, if element `a` appears more than once, it will only appear once in the result returned.
+
+```python
+>>> raw_content.count()
+421970
+
+# one set's union with itself equals to its "double"
+>>> raw_content.union(raw_content).count()
+843940
+
+# one set's intersection with itself equals to its disctinct value set
+>>> raw_content.intersection(raw_content).count()
+421553
+
+>>> raw_content.distinct().count()
+421553
+```
+One point we need to take note of is that these if each line of our data is an array instead of a string, `intersection` and `distinct` methods can't work properly. This is why I used `raw_content` instead of `content` here as example.
 
 ## References
 [1] Spark Programming Guide, http://spark.apache.org/docs/latest/programming-guide.html
