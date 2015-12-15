@@ -5,6 +5,20 @@ In this repo, I tried to use Spark (PySpark) to look into a downloading log file
 (Please note that Hadoop will not be inclued into this practice.)
 
 
+- [Preparation](#preparation)
+- [Sample Data](#sample-data)
+- [How We Use Spark (PySpark)](#how-we-use-spark)
+  - [Start PySpark](#start-pyspark)
+  - [Load Data](#load-data)
+  - [Show the Head](#show-the-head)
+  - [Transformation (map)](#transformation)
+  - [Reduce](#reduce)
+  - [Sorting](#sorting)
+  - [Filter](#filter)
+  - [Collect Result ('Export' into Python)](#collect-result)
+  - [Set Operation](#set-operation)
+- [References](#references)
+
 
 ## Preparation
 
@@ -87,6 +101,7 @@ You may want to take note of that all of Spark’s file-based input methods, inc
 >>> b.count()
 421970
 ```
+This feature also makes things much simpler when we have multiple text data files to load. By giving the directory under where these files are ("/my/directory"), we can load many data files with only one line. Additionally, we can also specify the file types we would like to load, like with `textFile("/my/directory/*.txt")`, we will only load those files with `.txt` file type in the directory we specified.
 
 
 ### Show the Head (First `n` rows)
@@ -111,7 +126,7 @@ We can also take samples randomly with `takeSample` method. With `takeSample` me
 If we specified the last argument, i.e. seed, then we can reproduce the samples exactly.
 
 
-### Transformation
+### Transformation (map)
 
 We may note that each row of the data is a character string, and it would be more convenient to have an array instead. So we use `map` to transform them and use `take` method to get the first three rows to check how the resutls look like.
 ```python
@@ -168,16 +183,16 @@ pyspark.rdd.PipelinedRDD
  (u'"interpretR"', 14)]
 ```
 
-To achive the same purpose, we can also use `countByKey` method.
+To achive the same purpose, we can also use `countByKey` method. The result returned by it is in dictionary structure.
 
 ```python
->>> package_count_2 = content.map(lambda x: (x[6])).countByKey()
->>> package_count_2.take(5)
-[(u'"runittotestthat"', 13),
- (u'"stm"', 25),
- (u'"psychotree"', 28),
- (u'"memuse"', 16),
- (u'"interpretR"', 14)]
+>>> package_count_2 = content.map(lambda x: (x[6], 1)).countByKey()
+>>> type(package_count_2)
+<type 'collections.defaultdict'>
+>>> package_count_2['"ggplot2"']
+3913
+>>> package_count_2['"stm"']
+25
 ```
 
 
