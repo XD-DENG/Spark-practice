@@ -12,7 +12,7 @@ In this repo, I tried to use Spark (PySpark) to look into a downloading log file
   - [Load Data](#load-data)
   - [Show the Head](#show-the-head)
   - [Transformation (map)](#transformation)
-  - [Reduce](#reduce)
+  - [Reduce and Counting](#reduce-and-counting)
   - [Sorting](#sorting)
   - [Filter](#filter)
   - [Collect Result ('Export' into Python)](#collect-result)
@@ -165,7 +165,7 @@ We may note that each row of the data is a character string, and it would be mor
 ```
 
 
-### Reduce
+### Reduce and Counting
 
 Here I would like to know how many downloading records each package has. For example, for R package "Rcpp", I want to know how many rows belong to it.
 ```python
@@ -193,6 +193,20 @@ To achive the same purpose, we can also use `countByKey` method. The result retu
 3913
 >>> package_count_2['"stm"']
 25
+```
+Please note that `countByKey` method ONLY works on RDDs of type (K, V), returning a hashmap of (K, int) pairs with the count of each key. AND the value of `V` will not affect the result! Just like the example below.
+```python
+>>> package_count_2 = content.map(lambda x: (x[6], 1)).countByKey()
+>>> package_count_2['"ggplot2"']
+3913
+
+>>> package_count_2_1 = content.map(lambda x: (x[6], 3)).countByKey()
+>>> package_count_2_1['"ggplot2"']
+3913
+
+>>> package_count_2_2 = content.map(lambda x: (x[6], "test")).countByKey()
+>>> package_count_2_2['"ggplot2"']
+3913
 ```
 
 
