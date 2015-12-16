@@ -7,15 +7,15 @@ In this repo, I tried to use Spark (PySpark) to look into a downloading log file
 
 - [Preparation](#preparation)
 - [Sample Data](#sample-data)
-- [How We Use Spark (PySpark)](#how-we-use-spark)
+- [How We Use Spark (PySpark)](#how-we-use-spark-pyspark)
   - [Start PySpark](#start-pyspark)
   - [Load Data](#load-data)
-  - [Show the Head](#show-the-head)
+  - [Show the Head](#show-the-head-first-n-rows)
   - [Transformation (map)](#transformation-map)
   - [Reduce and Counting](#reduce-and-counting)
   - [Sorting](#sorting)
   - [Filter](#filter)
-  - [Collect Result ('Export' into Python)](#collect-result)
+  - [Collect Result ('Export' into Python)](#collect-result-export-into-python)
   - [Set Operation](#set-operation)
 - [References](#references)
 
