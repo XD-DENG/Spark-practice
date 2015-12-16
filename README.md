@@ -9,11 +9,11 @@ Please note:
 
 - [1. Preparation](#1-preparation)
 - [2. Sample Data](#2-sample-data)
-- [3. How We Use Spark (PySpark) Interactively](#3-how-we-use-spark-pyspark)
+- [3. How We Use Spark (PySpark) Interactively](#3-how-we-use-spark-pyspark-interactively)
   - [Start PySpark](#start-pyspark)
   - [Load Data](#load-data)
   - [Show the Head](#show-the-head-first-n-rows)
-  - [Transformation (map)](#transformation-map)
+  - [Transformation (map & flatMap)](#transformation-map--flatmap)
   - [Reduce and Counting](#reduce-and-counting)
   - [Sorting](#sorting)
   - [Filter](#filter)
