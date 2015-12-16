@@ -21,6 +21,7 @@ Please note:
   - [Set Operation](#set-operation)
 - [4. Submitting Application](#4-submitting-application)
 - [References](#references)
+- [License](#license)
 
 
 ## 1. Preparation
@@ -129,7 +130,7 @@ We can also take samples randomly with `takeSample` method. With `takeSample` me
 If we specified the last argument, i.e. seed, then we can reproduce the samples exactly.
 
 
-### Transformation (map)
+### Transformation (map & flatMap)
 
 We may note that each row of the data is a character string, and it would be more convenient to have an array instead. So we use `map` to transform them and use `take` method to get the first three rows to check how the resutls look like.
 ```python
@@ -182,6 +183,18 @@ There are several ways to define the functions for `map`. Normally, we can use *
 # the result is exactly the same as the result we got with lambda function above.
 ```
 This is also applicable to `filter` method which will be introduced later.
+
+You may have noted that there is another method named `flatMap`. Then what's the difference between `map` and `flatMap`? We can look into a simple example firstly.
+```python
+>>> text=["a b c", "d e", "f g h"]
+>>> sc.parallelize(text).map(lambda x:x.split(" ")).collect()
+[['a', 'b', 'c'], ['d', 'e'], ['f', 'g', 'h']]
+>>> sc.parallelize(text).flatMap(lambda x:x.split(" ")).collect()
+['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+```
+To put it simple (maybe not precise), we can say that `map` will return a **sequence** of the same length as the original data. In this sequence each element is a **sub-sequence** corresponding to one element in original data. `flatMap` will return a sequence whose length equals to the sum of the lengths of all sub-sequance returned by `map`.       
+
+
 
 ### Reduce and Counting
 
@@ -354,7 +367,7 @@ The `spark-submit` script in Spark’s `bin` directory is just used to figure ou
 ./bin/spark-submit examples/src/main/r/dataframe.R
 ```
 
-While using `spark-submit`, there are also several options we can specify, including which cluster to use (`--master`) and arbitrary Spark configuration property. For details and examples of this, you may refere to *Submitting Applications* (http://spark.apache.org/docs/latest/submitting-applications.html)[2].
+While using `spark-submit`, there are also several options we can specify, including which cluster to use (`--master`) and arbitrary Spark configuration property. For details and examples of this, you may refere to *Submitting Applications*[2].
 
 
 
@@ -367,3 +380,7 @@ While using `spark-submit`, there are also several options we can specify, inclu
 [3] Spark Examples, http://spark.apache.org/examples.html
 
 [4] Spark Configuration, http://spark.apache.org/docs/latest/configuration.html
+
+
+## License
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License - [CC BY-NC-SA 4.0](http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)
