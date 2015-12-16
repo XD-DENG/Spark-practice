@@ -346,7 +346,7 @@ All examples showed above were implemented interactively. To automate things, we
 
 The `spark-submit` script in Spark’s `bin` directory is just used to figure out this problem, i.e. launch applications. It can use all of Spark’s supported cluster managers (Scala, Java, Python, and R) through a uniform interface so you don’t have to configure your application specially for each one [2]. This means that we only need to prepare and call the scripts while we don't need to tell Spark which driver we're using.
 
-```python
+```bash
 # submit application written with Python
 ./bin/spark-submit examples/src/main/python/pi.py
 
@@ -354,13 +354,16 @@ The `spark-submit` script in Spark’s `bin` directory is just used to figure ou
 ./bin/spark-submit examples/src/main/r/dataframe.R
 ```
 
-While using `spark-submit`, there are also several options we can specify, including which cluster to use (`--master`) and arbitrary Spark configuration property. For details and examples of this, you may refere to **Submitting Applications**[2].
+While using `spark-submit`, there are also several options we can specify, including which cluster to use (`--master`) and arbitrary Spark configuration property. For details and examples of this, you may refere to *Submitting Applications* (http://spark.apache.org/docs/latest/submitting-applications.html)[2].
 
 
 
 
 ## References
 [1] Spark Programming Guide, http://spark.apache.org/docs/latest/programming-guide.html
+
 [2] Submitting Applications, http://spark.apache.org/docs/latest/submitting-applications.html
+
 [3] Spark Examples, http://spark.apache.org/examples.html
+
 [4] Spark Configuration, http://spark.apache.org/docs/latest/configuration.html
