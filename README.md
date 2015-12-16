@@ -2,12 +2,14 @@
 
 In this repo, I tried to use Spark (PySpark) to look into a downloading log file in .CSV format. This repo can be considered as an introduction to the very basic functions of Spark. It may be helpful for those who are beginners to Spark.
 
-(Please note that Hadoop will not be inclued into this practice.)
+Please note:
+ - Hadoop will not be inclued into this practice.
+ - I used standalone mode here. Cluster deployment will not be discussed in this project. 
 
 
-- [Preparation](#preparation)
-- [Sample Data](#sample-data)
-- [How We Use Spark (PySpark)](#how-we-use-spark-pyspark)
+- [1. Preparation](#1-preparation)
+- [2. Sample Data](#2-sample-data)
+- [3. How We Use Spark (PySpark) Interactively](#3-how-we-use-spark-pyspark)
   - [Start PySpark](#start-pyspark)
   - [Load Data](#load-data)
   - [Show the Head](#show-the-head-first-n-rows)
@@ -17,10 +19,11 @@ In this repo, I tried to use Spark (PySpark) to look into a downloading log file
   - [Filter](#filter)
   - [Collect Result ('Export' into Python)](#collect-result-export-into-python)
   - [Set Operation](#set-operation)
+- [4. Submitting Application](#4-submitting-application)
 - [References](#references)
 
 
-## Preparation
+## 1. Preparation
 
 The environment I worked on is an Ubuntu machine. It's quite simple to install Spark on Ubuntu platform. 
 
@@ -51,7 +54,7 @@ $ ./bin/spark-shell
 
 
 
-## Sample Data
+## 2. Sample Data
 The sample data we use here is from http://cran-logs.rstudio.com/. It is the full downloads log of R packages from Rstudio's CRAN mirror on December 12 2015. 
 
 ![\[pic link\]](https://github.com/XD-DENG/Spark-practice/blob/master/sample_data/data_screenshot.png?raw=true)
@@ -61,7 +64,7 @@ We will try to use Spark to do some simple analytics on this data.
 
 
 
-## How We Use Spark (PySpark) 
+## 3. How We Use Spark (PySpark) Interactively
 
 ### Start PySpark 
 
@@ -314,9 +317,9 @@ list
 
 ### Set Operation
 Like the set operators in Oracle SQL, we can do set operations in Spark. Here we would introduce `union`, `intersection`, and `distinct`. We can make intuitive interpretations as below.
-- union of A and B: return elements of A AND elements of B.
-- intersection of A and B: return these elements existing in both A and B.
-- distinct of A: return the distinct values in A. That is, if element `a` appears more than once, it will only appear once in the result returned.
+- *union of A and B*: return elements of A AND elements of B.
+- *intersection of A and B*: return these elements existing in both A and B.
+- *distinct of A*: return the distinct values in A. That is, if element `a` appears more than once, it will only appear once in the result returned.
 
 ```python
 >>> raw_content.count()
@@ -335,5 +338,29 @@ Like the set operators in Oracle SQL, we can do set operations in Spark. Here we
 ```
 One point we need to take note of is that if each line of our data is an array instead of a string, `intersection` and `distinct` methods can't work properly. This is why I used `raw_content` instead of `content` here as example.
 
+
+
+## 4. Submitting Applicationn
+
+All examples showed above were implemented interactively. To automate things, we may need to prepare scripts (applications) in advance and call them, instead of entering line by line.
+
+The `spark-submit` script in Spark’s `bin` directory is just used to figure out this problem, i.e. launch applications. It can use all of Spark’s supported cluster managers (Scala, Java, Python, and R) through a uniform interface so you don’t have to configure your application specially for each one [2]. This means that we only need to prepare and call the scripts while we don't need to tell Spark which driver we're using.
+
+```python
+# submit application written with Python
+./bin/spark-submit examples/src/main/python/pi.py
+
+# submit application written with R
+./bin/spark-submit examples/src/main/r/dataframe.R
+```
+
+While using `spark-submit`, there are also several options we can specify, including which cluster to use (`--master`) and arbitrary Spark configuration property. For details and examples of this, you may refere to **Submitting Applications**[2].
+
+
+
+
 ## References
 [1] Spark Programming Guide, http://spark.apache.org/docs/latest/programming-guide.html
+[2] Submitting Applications, http://spark.apache.org/docs/latest/submitting-applications.html
+[3] Spark Examples, http://spark.apache.org/examples.html
+[4] Spark Configuration, http://spark.apache.org/docs/latest/configuration.html
