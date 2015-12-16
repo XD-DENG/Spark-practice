@@ -340,7 +340,7 @@ One point we need to take note of is that if each line of our data is an array i
 
 
 
-## 4. Submitting Applicationn
+## 4. Submitting Application
 
 All examples showed above were implemented interactively. To automate things, we may need to prepare scripts (applications) in advance and call them, instead of entering line by line.
 
