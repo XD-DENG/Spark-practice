@@ -138,9 +138,9 @@ We may note that each row of the data is a character string, and it would be mor
 >>> content = raw_content.map(lambda x: x.split(','))
 >>> content.take(3)
 [
-[u'date', u'time', u'size', u'r_version', u'r_arch', u'r_os', u'package', u'version', u'country', u'ip_id'], 
-[u'2015-12-12', u'13:42:10', u'257886', u'3.2.2', u'i386', u'mingw32', u'HistData', u'0.7-6', u'CZ', u'1'], 
-[u'2015-12-12', u'13:24:37', u'1236751', u'3.2.2', u'x86_64', u'mingw32', u'RJSONIO', u'1.3-0', u'DE', u'2']
+[u'"date"', u'"time"', u'"size"', u'"r_version"', u'"r_arch"', u'"r_os"', u'"package"', u'"version"', u'"country"', u'"ip_id"'], 
+[u'"2015-12-12"', u'"13:42:10"', u'257886', u'"3.2.2"', u'"i386"', u'"mingw32"', u'"HistData"', u'"0.7-6"', u'"CZ"', u'1'], 
+[u'"2015-12-12"', u'"13:24:37"', u'1236751', u'"3.2.2"', u'"x86_64"', u'"mingw32"', u'"RJSONIO"', u'"1.3-0"', u'"DE"', u'2']
 ]
 ```
 I would say `map(function)` method is one of the most basic and important methods in Spark. It returns a new distributed dataset formed by passing each element of the source through a function specified by user [1]. 
