@@ -19,6 +19,7 @@ Please note:
   - [Filter](#filter)
   - [Collect Result ('Export' into Python)](#collect-result-export-into-python)
   - [Set Operation](#set-operation)
+  - [Join](#join)
 - [4. Submitting Application](#4-submitting-application)
 - [References](#references)
 - [License](#license)
@@ -56,7 +57,7 @@ $ ./bin/spark-shell
 
 
 ## 2. Sample Data
-The sample data we use here is from http://cran-logs.rstudio.com/. It is the full downloads log of R packages from Rstudio's CRAN mirror on December 12 2015. 
+The sample data we use here is from http://cran-logs.rstudio.com/. It is the full downloads log of R packages from Rstudio's CRAN mirror on December 12 2015 (you can get the data in the `sample_data` folder of this repository). 
 
 ![\[pic link\]](https://github.com/XD-DENG/Spark-practice/blob/master/sample_data/data_screenshot.png?raw=true)
 
@@ -85,14 +86,14 @@ After Spark is started, a default SparkContext will be created (usually named as
 The most common method used to load data is `textFile`. This method takes an URI for the file (local file or other URI like hdfs://), and will read the data in as a collections of lines. 
 ```python
 # Load the data
->>>raw_content = sc.textFile("2015-12-12.csv")
+>>> raw_content = sc.textFile("2015-12-12.csv")
 
 # Print the type of the object
->>>type(raw_content)
-pyspark.rdd.RDD
+>>> type(raw_content)
+<class 'pyspark.rdd.RDD'>
 
 # Print the number of lines
->>>raw_content.count()
+>>> raw_content.count()
 421970
 ```
 
@@ -111,7 +112,7 @@ This feature also makes things much simpler when we have multiple text data file
 ### Show the Head (First `n` rows)
 We can use `take` method to return first `n` rows.
 ```python
->>>raw_content.take(5)
+>>> raw_content.take(5)
 [u'"date","time","size","r_version","r_arch","r_os","package","version","country","ip_id"',
  u'"2015-12-12","13:42:10",257886,"3.2.2","i386","mingw32","HistData","0.7-6","CZ",1',
  u'"2015-12-12","13:24:37",1236751,"3.2.2","x86_64","mingw32","RJSONIO","1.3-0","DE",2',
@@ -134,8 +135,8 @@ If we specified the last argument, i.e. seed, then we can reproduce the samples 
 
 We may note that each row of the data is a character string, and it would be more convenient to have an array instead. So we use `map` to transform them and use `take` method to get the first three rows to check how the resutls look like.
 ```python
->>>content = raw_content.map(lambda x: x.split(','))
->>>content.take(3)
+>>> content = raw_content.map(lambda x: x.split(','))
+>>> content.take(3)
 [[u'"date"',
   u'"time"',
   u'"size"',
@@ -167,22 +168,26 @@ We may note that each row of the data is a character string, and it would be mor
   u'"DE"',
   u'2']]
 ```
-I would say `map(function)` method is one of the most basic and important method in Spark. It returns a new distributed dataset formed by passing each element of the source through a function specified by user [1]. 
+I would say `map(function)` method is one of the most basic and important methods in Spark. It returns a new distributed dataset formed by passing each element of the source through a function specified by user [1]. 
 
-There are several ways to define the functions for `map`. Normally, we can use *lambda* function to do this, just like what I did above. This is suitable for simple functions (one line statement). For more complicated process, we can also define a separate function and call it within `map` method. 
+There are several ways to define the functions for `map`. Normally, we can use *lambda* function to do this, just like what I did above. This is suitable for simple functions (one line statement). For more complicated process, we can also define a separate function in Python fashion and call it within `map` method. 
+
+We have an example here: you may have note the doube quotation marks in the imported data above, and I want to remove all of them in each element of our data
 
 ```python
-# To do the totally same thing, we can also use normal function instead of lambda function.
-# But this is usaully for more complicated functions.
-# If the function we need is simple, it's recommended to use `lambda` fucntion
+# remove the double quotation marks in the imported data
+>>> def clean(x):
+        for i in range(len(x)):
+            x[i]=x[i].replace('"','')
+        return(x)
 
->>> def test(x):
-        return x.split(',')
-   
->>> raw_content.map(test).take(3)
-# the result is exactly the same as the result we got with lambda function above.
+>>> content = content.map(clean)
+
+>>> content.take(4)
+[[u'date', u'time', u'size', u'r_version', u'r_arch', u'r_os', u'package', u'version', u'country', u'ip_id'], [u'2015-12-12', u'13:42:10', u'257886', u'3.2.2', u'i386', u'mingw32', u'HistData', u'0.7-6', u'CZ', u'1'], [u'2015-12-12', u'13:24:37', u'1236751', u'3.2.2', u'x86_64', u'mingw32', u'RJSONIO', u'1.3-0', u'DE', u'2'], [u'2015-12-12', u'13:42:35', u'2077876', u'3.2.2', u'i386', u'mingw32', u'UsingR', u'2.0-5', u'CZ', u'1']]
 ```
-This is also applicable to `filter` method which will be introduced later.
+
+The same function defining approach is also applicable to `filter` method which will be introduced later.
 
 You may have noted that there is another method named `flatMap`. Then what's the difference between `map` and `flatMap`? We can look into a simple example firstly.
 ```python
@@ -203,7 +208,7 @@ Here I would like to know how many downloading records each package has. For exa
 >>> # Note here x[6] is just the 7th element of each row, that is the package name.
 >>> package_count = content.map(lambda x: (x[6], 1)).reduceByKey(lambda a,b: a+b)
 >>> type(package_count)
-pyspark.rdd.PipelinedRDD
+<class 'pyspark.rdd.PipelinedRDD'>
 >>> package_count.count()
 8660
 >>> package_count.take(5)
@@ -220,23 +225,23 @@ To achive the same purpose, we can also use `countByKey` method. The result retu
 >>> package_count_2 = content.map(lambda x: (x[6], 1)).countByKey()
 >>> type(package_count_2)
 <type 'collections.defaultdict'>
->>> package_count_2['"ggplot2"']
+>>> package_count_2['ggplot2']
 3913
->>> package_count_2['"stm"']
+>>> package_count_2['stm']
 25
 ```
-Please note that `countByKey` method ONLY works on RDDs of type (K, V), returning a hashmap of (K, int) pairs with the count of each key [1]. AND the value of `V` will not affect the result! Just like the example below.
+Please note that `countByKey` method ONLY works on RDDs of type (K, V), returning a hashmap of (K, int) pairs with the COUNT of each key [1]. And the value of `V` will NOT affect the result! Just like the example below.
 ```python
 >>> package_count_2 = content.map(lambda x: (x[6], 1)).countByKey()
->>> package_count_2['"ggplot2"']
+>>> package_count_2['ggplot2']
 3913
 
 >>> package_count_2_1 = content.map(lambda x: (x[6], 3)).countByKey()
->>> package_count_2_1['"ggplot2"']
+>>> package_count_2_1['ggplot2']
 3913
 
 >>> package_count_2_2 = content.map(lambda x: (x[6], "test")).countByKey()
->>> package_count_2_2['"ggplot2"']
+>>> package_count_2_2['ggplot2']
 3913
 ```
 
@@ -244,88 +249,64 @@ Please note that `countByKey` method ONLY works on RDDs of type (K, V), returnin
 
 ### Sorting
 
-After counting by `reduce` method, I may want to know the rankings of these packages based on how many downloads they have. Then we need to use `sortByKey` method.
+After counting by `reduce` method, I may want to know the rankings of these packages based on how many downloads they have. Then we need to use `sortByKey` method. Please note: 
+* The 'Key' here refers to the first element of each array.
+* The argument of `sortByKey` (0 or 1) will determine if we're sorting descently ('0') or ascently ('1').
+
 ```python
-# Sort descently and get the first 10
+# Sort DESCENTLY and get the first 10
 >>> package_count.map(lambda x: (x[1], x[0])).sortByKey(0).take(10)
-[(4783, u'"Rcpp"'),
- (3913, u'"ggplot2"'),
- (3748, u'"stringi"'),
- (3449, u'"stringr"'),
- (3436, u'"plyr"'),
- (3265, u'"magrittr"'),
- (3223, u'"digest"'),
- (3205, u'"reshape2"'),
- (3046, u'"RColorBrewer"'),
- (3007, u'"scales"')]
+[(4783, u'Rcpp'),
+ (3913, u'ggplot2'),
+ (3748, u'stringi'),
+ (3449, u'stringr'),
+ (3436, u'plyr'),
+ (3265, u'magrittr'),
+ (3223, u'digest'),
+ (3205, u'reshape2'),
+ (3046, u'RColorBrewer'),
+ (3007, u'scales')]
 
  # Sort ascently and get the first 10
  >>> package_count.map(lambda x: (x[1], x[0])).sortByKey(1).take(10)
- [(1, u'"TSjson"'),
- (1, u'"ebayesthresh"'),
- (1, u'"parspatstat"'),
- (1, u'"gppois"'),
- (1, u'"JMLSD"'),
- (1, u'"kBestShortestPaths"'),
- (1, u'"StVAR"'),
- (1, u'"mosaicManip"'),
- (1, u'"em2"'),
- (1, u'"DART"')]
+ [(1, u'TSjson'),
+ (1, u'ebayesthresh'),
+ (1, u'parspatstat'),
+ (1, u'gppois'),
+ (1, u'JMLSD'),
+ (1, u'kBestShortestPaths'),
+ (1, u'StVAR'),
+ (1, u'mosaicManip'),
+ (1, u'em2'),
+ (1, u'DART')]
 ```
 
 
 ### Filter
-We can consider `filter` as the `SELECT * from TABLE WHERE ???`. It can help return a new dataset formed by selecting those elements of the source on which the function specified by user returns true.
+We can consider `filter` as the `SELECT * from TABLE WHERE ???` statement in SQL. It can help return a new dataset formed by selecting those elements of the source on which the function specified by user returns true.
 
 For example, I would want to obtain these downloading records of R package "Rtts" from China (CN), then the condition is "package == 'Rtts' AND country = 'CN'".
 
 ```python
->>> content.filter(lambda x: x[6] == '"Rtts"' and x[8] == '"CN"').count()
+>>> content.filter(lambda x: x[6] == 'Rtts' and x[8] == 'CN').count()
 1
->>> content.filter(lambda x: x[6] == '"Rtts"' and x[8] == '"CN"').take(1)
-[[u'"2015-12-12"',
-  u'"20:15:24"',
-  u'23820',
-  u'"3.2.2"',
-  u'"x86_64"',
-  u'"mingw32"',
-  u'"Rtts"',
-  u'"0.3.3"',
-  u'"CN"',
-  u'41']]
+>>> content.filter(lambda x: x[6] == 'Rtts' and x[8] == 'CN').take(1)
+[[u'2015-12-12', u'20:15:24', u'23820', u'3.2.2', u'x86_64', u'mingw32', u'Rtts', u'0.3.3', u'CN', u'41']]
 ```
 
 ### Collect Result ('Export' into Python)
-All the operations I listed above were done as RDD (Resilient Distributed Datasets). We can say that they were implemented within Spark. And we may want to transfer some dataset into Python itself.
+
+All the operations I listed above were done as RDD (Resilient Distributed Datasets). We can say that they were implemented 'within' Spark. And we may want to transfer some dataset into Python itself.
 
 `take` method we used above can help us fulfill this purpose partially. But we also have `collect` method to do this, and the difference between `collect` and `take` is that the former will return all the elements in the dataset by default and the later one will return the first `n` rows (`n` is specified by user).
 ```python
->>> temp = content.filter(lambda x: x[6] == '"Rtts"' and x[8] == '"US"').collect()
+>>> temp = content.filter(lambda x: x[6] == 'Rtts' and x[8] == 'US').collect()
 
 >>> type(temp)
-list
+<type 'list'>
 
 >>> temp
-[[u'"2015-12-12"',
-  u'"04:52:36"',
-  u'23820',
-  u'"3.2.3"',
-  u'"i386"',
-  u'"mingw32"',
-  u'"Rtts"',
-  u'"0.3.3"',
-  u'"US"',
-  u'1652'],
- [u'"2015-12-12"',
-  u'"20:31:45"',
-  u'23820',
-  u'"3.2.3"',
-  u'"x86_64"',
-  u'"linux-gnu"',
-  u'"Rtts"',
-  u'"0.3.3"',
-  u'"US"',
-  u'4438']]
+[[u'2015-12-12', u'04:52:36', u'23820', u'3.2.3', u'i386', u'mingw32', u'Rtts', u'0.3.3', u'US', u'1652'], [u'2015-12-12', u'20:31:45', u'23820', u'3.2.3', u'x86_64', u'linux-gnu', u'Rtts', u'0.3.3', u'US', u'4438']]
 ```
 
 ### Set Operation
@@ -350,6 +331,50 @@ Like the set operators in Oracle SQL, we can do set operations in Spark. Here we
 421553
 ```
 One point we need to take note of is that if each line of our data is an array instead of a string, `intersection` and `distinct` methods can't work properly. This is why I used `raw_content` instead of `content` here as example.
+
+
+
+### Join
+
+Once again, I have found the data process methods in Spark is quite similar to that in SQL, like I can use `join` method in Spark, which is a great news! **Outer joins** are also supported through `leftOuterJoin`, `rightOuterJoin`, and `fullOuterJoin` [1]. Additionally, `cartesian` is available as well.
+
+When called on datasets of type (K, V) and (K, W), returns a dataset of (K, (V, W)) pairs with all pairs of elements for each key[1].
+
+```python
+
+# generate a new RDD in which the 'country' variable is KEY
+>>> content_modified=content.map(lambda x:(x[8], x))
+
+# give a mapping table of the abbreviates of four countries and their full name.
+>>> mapping=[('DE', 'Germany'), ('US', 'United States'), ('CN', 'China'), ('IN',"India")]
+>>> mapping=sc.parallelize(mapping)
+
+# join
+>>> content_modified.join(mapping).takeSample(1, 8)
+[
+(u'CN', ([u'2015-12-12', u'19:26:01', u'512', u'NA', u'NA', u'NA', u'reweight', u'1.01', u'CN', u'4721'], 'China')), 
+(u'US', ([u'2015-12-12', u'18:15:11', u'14271399', u'3.2.1', u'x86_64', u'mingw32', u'stringi', u'1.0-1', u'US', u'11837'], 'United States')), 
+(u'US', ([u'2015-12-12', u'00:03:27', u'392370', u'3.2.3', u'x86_64', u'linux-gnu', u'colorspace', u'1.2-6', u'US', u'12607'], 'United States')), 
+(u'US', ([u'2015-12-12', u'05:10:29', u'290932', u'3.2.2', u'x86_64', u'mingw32', u'iterators', u'1.0.8', u'US', u'5656'], 'United States')), 
+(u'US', ([u'2015-12-12', u'22:28:47', u'2143454', u'3.2.3', u'x86_64', u'linux-gnu', u'quantreg', u'5.19', u'US', u'16318'], 'United States')), 
+(u'US', ([u'2015-12-12', u'13:12:26', u'985806', u'3.2.3', u'x86_64', u'linux-gnu', u'plotly', u'2.0.3', u'US', u'2570'], 'United States')), 
+(u'CN', ([u'2015-12-12', u'17:04:44', u'178399', u'3.2.1', u'x86_64', u'darwin13.4.0', u'apsrtable', u'0.8-8', u'CN', u'41'], 'China')), 
+(u'US', ([u'2015-12-12', u'06:41:09', u'76007', u'3.2.3', u'i386', u'mingw32', u'superpc', u'1.09', u'US', u'1985'], 'United States'))
+]
+
+# left outer join. 
+# In the mapping table, we only gave the mappings of four countries, so we found some 'None' values in the returned result below
+>>> content_modified.leftOuterJoin(mapping).takeSample(1, 8)
+[
+(u'US', ([u'2015-12-12', u'15:43:03', u'153892', u'3.2.2', u'i386', u'mingw32', u'gridBase', u'0.4-7', u'US', u'8922'], 'United States')), 
+(u'CN', ([u'2015-12-12', u'19:59:37', u'82833', u'3.2.3', u'x86_64', u'mingw32', u'rgcvpack', u'0.1-4', u'CN', u'41'], 'China')), 
+(u'JP', ([u'2015-12-12', u'17:24:59', u'2677787', u'3.2.3', u'i386', u'mingw32', u'ggplot2', u'1.0.1', u'JP', u'3597'], None)), 
+(u'TN', ([u'2015-12-12', u'13:40:13', u'1229084', u'3.2.2', u'x86_64', u'mingw32', u'forecast', u'6.2', u'TN', u'10847'], None)), 
+(u'US', ([u'2015-12-12', u'05:09:59', u'75327', u'3.2.3', u'x86_64', u'mingw32', u'xml2', u'0.1.2', u'US', u'5530'], 'United States')), 
+(u'AE', ([u'2015-12-12', u'14:23:56', u'695625', u'3.1.2', u'i386', u'mingw32', u'mbbefd', u'0.7', u'AE', u'556'], None)), 
+(u'KR', ([u'2015-12-12', u'16:31:34', u'36701', u'3.2.3', u'x86_64', u'linux-gnu', u'ttScreening', u'1.5', u'KR', u'4986'], None)), 
+(u'US', ([u'2015-12-12', u'15:43:08', u'35212', u'3.2.2', u'x86_64', u'mingw32', u'reshape2', u'1.4.1', u'US', u'8922'], 'United States'))]
+```
 
 
 
