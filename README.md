@@ -184,7 +184,12 @@ We have an example here: you may have note the doube quotation marks in the impo
 >>> content = content.map(clean)
 
 >>> content.take(4)
-[[u'date', u'time', u'size', u'r_version', u'r_arch', u'r_os', u'package', u'version', u'country', u'ip_id'], [u'2015-12-12', u'13:42:10', u'257886', u'3.2.2', u'i386', u'mingw32', u'HistData', u'0.7-6', u'CZ', u'1'], [u'2015-12-12', u'13:24:37', u'1236751', u'3.2.2', u'x86_64', u'mingw32', u'RJSONIO', u'1.3-0', u'DE', u'2'], [u'2015-12-12', u'13:42:35', u'2077876', u'3.2.2', u'i386', u'mingw32', u'UsingR', u'2.0-5', u'CZ', u'1']]
+[
+[u'date', u'time', u'size', u'r_version', u'r_arch', u'r_os', u'package', u'version', u'country', u'ip_id'], 
+[u'2015-12-12', u'13:42:10', u'257886', u'3.2.2', u'i386', u'mingw32', u'HistData', u'0.7-6', u'CZ', u'1'], 
+[u'2015-12-12', u'13:24:37', u'1236751', u'3.2.2', u'x86_64', u'mingw32', u'RJSONIO', u'1.3-0', u'DE', u'2'], 
+[u'2015-12-12', u'13:42:35', u'2077876', u'3.2.2', u'i386', u'mingw32', u'UsingR', u'2.0-5', u'CZ', u'1']
+]
 ```
 
 The same function defining approach is also applicable to `filter` method which will be introduced later.
@@ -212,11 +217,11 @@ Here I would like to know how many downloading records each package has. For exa
 >>> package_count.count()
 8660
 >>> package_count.take(5)
-[(u'"runittotestthat"', 13),
- (u'"stm"', 25),
- (u'"psychotree"', 28),
- (u'"memuse"', 16),
- (u'"interpretR"', 14)]
+[(u'SIS', 24), 
+(u'StatMethRank', 15), 
+(u'dbmss', 54), 
+(u'searchable', 14), 
+(u'RcmdrPlugin.TextMining', 3)]
 ```
 
 To achive the same purpose, we can also use `countByKey` method. The result returned by it is in hashmap (like dictionary) structure.
@@ -306,7 +311,10 @@ All the operations I listed above were done as RDD (Resilient Distributed Datase
 <type 'list'>
 
 >>> temp
-[[u'2015-12-12', u'04:52:36', u'23820', u'3.2.3', u'i386', u'mingw32', u'Rtts', u'0.3.3', u'US', u'1652'], [u'2015-12-12', u'20:31:45', u'23820', u'3.2.3', u'x86_64', u'linux-gnu', u'Rtts', u'0.3.3', u'US', u'4438']]
+[
+[u'2015-12-12', u'04:52:36', u'23820', u'3.2.3', u'i386', u'mingw32', u'Rtts', u'0.3.3', u'US', u'1652'], 
+[u'2015-12-12', u'20:31:45', u'23820', u'3.2.3', u'x86_64', u'linux-gnu', u'Rtts', u'0.3.3', u'US', u'4438']
+]
 ```
 
 ### Set Operation
