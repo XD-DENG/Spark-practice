@@ -147,7 +147,7 @@ I would say `map(function)` method is one of the most basic and important method
 
 There are several ways to define the functions for `map`. Normally, we can use *lambda* function to do this, just like what I did above. This is suitable for simple functions (one line statement). For more complicated process, we can also define a separate function in Python fashion and call it within `map` method. 
 
-We have an example here: you may have note the doube quotation marks in the imported data above, and I want to remove all of them in each element of our data
+We have an example here: you may have noted the doube quotation marks in the imported data above, and I want to remove all of them in each element of our data
 
 ```python
 # remove the double quotation marks in the imported data
