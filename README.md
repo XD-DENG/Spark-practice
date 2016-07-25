@@ -31,7 +31,7 @@ The environment I worked on is an Ubuntu machine. It's quite simple to install S
 
 Firstly, ensure that JAVA is install properly. If not, we can install by 
 ```bash
-$  sudo apt-get install oepnjdk-7-jdk
+$  sudo apt-get install oepnjdk-8-jdk
 ```
 
 If you prefer Scala rather than Python, you need to install Scala as well.
