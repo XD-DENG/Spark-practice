@@ -389,10 +389,14 @@ Spark SQL is a Spark module for structured data processing [5]. It enables users
 from pyspark.sql import Row
 
 # Load a text file and convert each line to a Row.
-lines = sc.textFile("/Users/XD/Programming Mateirials/Spark/Spark-practice/sample_data/20*")
+lines = sc.textFile("2015-12-12.csv")
 parts = lines.map(lambda l: l.replace('"',""))
 parts = parts.map(lambda l: l.split(","))
-dat_RDD = parts.map(lambda p: Row(date=p[0], time=p[1], size=p[2], r_version=p[3], r_arch=p[4], r_os=p[5], package=p[6], version=p[7], country=p[8], ip_id=p[9]))
+dat_RDD = parts.map(lambda p: Row(date=p[0], time=p[1], \
+										 size=p[2], r_version=p[3],\
+										 r_arch=p[4], r_os=p[5],\
+										 package=p[6], version=p[7],\
+										 country=p[8], ip_id=p[9]))
 
 # Infer the schema, and register the DataFrame as a table.
 dat_DF = spark.createDataFrame(dat_RDD)
