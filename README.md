@@ -21,6 +21,7 @@ Please note:
   - [Set Operation](#set-operation)
   - [Join](#join)
 - [4. Submitting Application](#4-submitting-application)
+- [5. Spark SQL and DataFrames](#5-spark-sql-and-dataframes)
 - [References](#references)
 - [License](#license)
 
@@ -378,6 +379,46 @@ The `spark-submit` script in Spark’s `bin` directory is just used to figure ou
 While using `spark-submit`, there are also several options we can specify, including which cluster to use (`--master`) and arbitrary Spark configuration property. For details and examples of this, you may refere to *Submitting Applications*[2].
 
 
+## 5. Spark SQL and DataFrames
+
+Spark SQL is a Spark module for structured data processing [5]. It enables users to run SQL queries on the data within Spark. DataFrame in Spark is conceptually equivalent to a table in a relational database or a data frame in R/Python [5]. SQL queries in Spark will return results as DataFrames. Personal opinion, it's a bit more straightforward than RDD as DataFrame is just a TABLE itself.
+
+### Load CSV Data as DataFrame
+
+```{python}
+from pyspark.sql import Row
+
+# Load a text file and convert each line to a Row.
+lines = sc.textFile("/Users/XD/Programming Mateirials/Spark/Spark-practice/sample_data/20*")
+parts = lines.map(lambda l: l.replace('"',""))
+parts = parts.map(lambda l: l.split(","))
+dat_RDD = parts.map(lambda p: Row(date=p[0], time=p[1], size=p[2], r_version=p[3], r_arch=p[4], r_os=p[5], package=p[6], version=p[7], country=p[8], ip_id=p[9]))
+
+# Infer the schema, and register the DataFrame as a table.
+dat_DF = spark.createDataFrame(dat_RDD)
+dat_DF.createOrReplaceTempView("dat")
+
+# SQL can be run over DataFrames that have been registered as a table.
+spark.sql("select count(*) from dat where package ='Rcpp'").collect()
+#Row(count(1)=4783)
+
+#  Another SQL query example
+result=spark.sql("select country, count(*) as count from dat where package = 'Rtts' group by country order by 2")
+result.collect()
+# [Row(country=u'CN', count=1),
+#  Row(country=u'TW', count=1),
+#  Row(country=u'GB', count=1),
+#  Row(country=u'DE', count=1),
+#  Row(country=u'AE', count=1),
+#  Row(country=u'US', count=2),
+#  Row(country=u'EU', count=2),
+#  Row(country=u'KR', count=8)]
+
+result = result.rdd.map(lambda x:x['country'] + ":" + str(x['count'])).collect()
+result
+# [u'CN:1', u'TW:1', u'GB:1', u'DE:1', u'AE:1', u'US:2', u'EU:2', u'KR:8']
+``` 
+
 
 
 ## References
@@ -388,6 +429,8 @@ While using `spark-submit`, there are also several options we can specify, inclu
 [3] Spark Examples, http://spark.apache.org/examples.html
 
 [4] Spark Configuration, http://spark.apache.org/docs/latest/configuration.html
+
+[5] Spark SQL, DataFrames and Datasets Guide, http://spark.apache.org/docs/latest/sql-programming-guide.html
 
 
 ## License
