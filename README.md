@@ -4,7 +4,7 @@ In this repo, I tried to use Spark (PySpark) to look into a downloading log file
 
 Please note:
  - Hadoop will not be inclued into this practice.
- - I used standalone mode here. Cluster deployment will not be discussed in this project. 
+ - I used single-node mode here. Cluster deployment will not be discussed in this project. 
 
 Additionally, we're using a real log file as sample data in this tutorial and trying to cover some operations commonly used in daily works. If you would like to get to know more operations with minimal sample data, you can refer to a seperate script I prepared, [*Basic Operations in PySpark*](https://github.com/XD-DENG/Spark-practice/blob/master/others/basic_operations.py).
 
