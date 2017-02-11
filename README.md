@@ -21,6 +21,7 @@ Additionally, we're using a real log file as sample data in this tutorial and tr
   - [Collect Result ('Export' into Python)](#collect-result-export-into-python)
   - [Set Operation](#set-operation)
   - [Join](#join)
+  - [Caching](#caching)
 - [4. Submitting Application](#4-submitting-application)
 - [5. Spark SQL and DataFrames](#5-spark-sql-and-dataframes)
 - [References](#references)
@@ -361,6 +362,23 @@ When called on datasets of type (K, V) and (K, W), returns a dataset of (K, (V, 
 (u'US', ([u'2015-12-12', u'15:43:08', u'35212', u'3.2.2', u'x86_64', u'mingw32', u'reshape2', u'1.4.1', u'US', u'8922'], 'United States'))]
 ```
 
+### Caching
+
+Some RDDs may be repeatedly accessed, like the RDD *content* in the example above. In such situation, we may want to pull such RDDs into cluster-wide in-memory cache so that the computing relating to them will not be repeatedly implemented, which can help save resource and time. This is called "caching" in Spark, and can be done using RDD.cache() or RDD.persist() method. 
+
+Spark automatically monitors cache usage on each node and drops out old data partitions in a least-recently-used (LRU) fashion. Of course we can also manually remove an RDD instead of waiting for it to fall out of the cache, using the RDD.unpersist() method.
+
+```python
+>>> content.cache()
+>>> content.unpersist()
+
+#or
+
+>>> content.persist()
+>>> content.unpersist()
+```
+
+Please note caching may make little or even no difference when the data is small. But it will be significantly efficient when we're trying to handle big-size data in distributed fashion (instead of single-node mode) [1].
 
 
 ## 4. Submitting Application
