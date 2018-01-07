@@ -124,7 +124,7 @@ We can use `take` method to return first `n` rows.
 ```
 We can also take samples randomly with `takeSample` method. With `takeSample` method, we can give three arguments and need to give at least two of them. They are "if replacement", "number of samples", and "seed" (optional).
 ```python
->>> raw_content.takeSample(1, 5, 3)
+>>> raw_content.takeSample(True, 5, 3)
 [u'"2015-12-12","16:41:22",18773,"3.2.3","x86_64","mingw32","evaluate","0.8","US",10935',
  u'"2015-12-12","13:06:32",494138,"3.2.3","x86_64","linux-gnu","rjson","0.2.15","KR",655',
  u'"2015-12-12","03:50:05",140207,NA,NA,NA,"SACOBRA","0.7","DE",129',
