@@ -155,9 +155,7 @@ We have an example here: you may have noted the doube quotation marks in the imp
 ```python
 # remove the double quotation marks in the imported data
 >>> def clean(x):
-        for i in range(len(x)):
-            x[i]=x[i].replace('"','')
-        return(x)
+        return([xx.replace('"', '') for xx in x])
 
 >>> content = content.map(clean)
 
@@ -170,7 +168,9 @@ We have an example here: you may have noted the doube quotation marks in the imp
 ]
 ```
 
-The same function defining approach is also applicable to `filter` method which will be introduced later.
+We can also use multiple `map` operators in a single statement. For example, `raw_content.map(lambda x: x.split(',')).map(clean)` will return the same results.
+
+The same function-defining approach is also applicable to `filter` method which will be introduced later.
 
 You may have noted that there is another method named `flatMap`. Then what's the difference between `map` and `flatMap`? We can look into a simple example firstly.
 ```python
