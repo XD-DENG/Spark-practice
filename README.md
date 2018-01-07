@@ -352,7 +352,7 @@ When called on datasets of type (K, V) and (K, W), returns a dataset of (K, (V, 
 >>> mapping=sc.parallelize(mapping)
 
 # join
->>> content_modified.join(mapping).takeSample(1, 8)
+>>> content_modified.join(mapping).takeSample(False, 8)
 [
 (u'CN', ([u'2015-12-12', u'19:26:01', u'512', u'NA', u'NA', u'NA', u'reweight', u'1.01', u'CN', u'4721'], 'China')), 
 (u'US', ([u'2015-12-12', u'18:15:11', u'14271399', u'3.2.1', u'x86_64', u'mingw32', u'stringi', u'1.0-1', u'US', u'11837'], 'United States')), 
@@ -366,7 +366,7 @@ When called on datasets of type (K, V) and (K, W), returns a dataset of (K, (V, 
 
 # left outer join. 
 # In the mapping table, we only gave the mappings of four countries, so we found some 'None' values in the returned result below
->>> content_modified.leftOuterJoin(mapping).takeSample(1, 8)
+>>> content_modified.leftOuterJoin(mapping).takeSample(False, 8)
 [
 (u'US', ([u'2015-12-12', u'15:43:03', u'153892', u'3.2.2', u'i386', u'mingw32', u'gridBase', u'0.4-7', u'US', u'8922'], 'United States')), 
 (u'CN', ([u'2015-12-12', u'19:59:37', u'82833', u'3.2.3', u'x86_64', u'mingw32', u'rgcvpack', u'0.1-4', u'CN', u'41'], 'China')), 
