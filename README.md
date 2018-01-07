@@ -436,8 +436,7 @@ from pyspark.sql import Row
 
 # Load a text file and convert each line to a Row.
 lines = sc.textFile("2015-12-12.csv")
-parts = lines.map(lambda l: l.replace('"',""))
-parts = parts.map(lambda l: l.split(","))
+parts = lines.map(lambda l: l.replace('"',"")).map(lambda l: l.split(","))
 dat_RDD = parts.map(lambda p: Row(date=p[0], time=p[1], \
 			      size=p[2], r_version=p[3],\
 			      r_arch=p[4], r_os=p[5],\
@@ -467,6 +466,7 @@ result.collect()
 result = result.rdd.map(lambda x:x['country'] + ":" + str(x['count'])).collect()
 result
 # [u'CN:1', u'TW:1', u'GB:1', u'DE:1', u'AE:1', u'US:2', u'EU:2', u'KR:8']
+
 ``` 
 
 
