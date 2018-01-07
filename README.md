@@ -384,14 +384,25 @@ Some RDDs may be repeatedly accessed, like the RDD *content* in the example abov
 
 Spark automatically monitors cache usage on each node and drops out old data partitions in a least-recently-used (LRU) fashion. Of course we can also manually remove an RDD instead of waiting for it to fall out of the cache, using the RDD.unpersist() method.
 
+We can also use `.is_cached` to check whether a RDD is already cached or not.
+
 ```python
 >>> content.cache()
+>>> content.is_cached
+True
 >>> content.unpersist()
+>>> content.is_cached
+False
 
 #or
 
 >>> content.persist()
+>>> content.is_cached
+True
 >>> content.unpersist()
+>>> content.is_cached
+False
+
 ```
 
 Please note caching may make little or even no difference when the data is small. But it will be significantly efficient when we're trying to handle big-size data in distributed fashion (instead of single-node mode) [1].
