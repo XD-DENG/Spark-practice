@@ -124,7 +124,7 @@ We can use `take` method to return first `n` rows.
 ```
 We can also take samples randomly with `takeSample` method. With `takeSample` method, we can give three arguments and need to give at least two of them. They are "if replacement", "number of samples", and "seed" (optional).
 ```python
->>> raw_content.takeSample(1, 5, 3)
+>>> raw_content.takeSample(True, 5, 3)
 [u'"2015-12-12","16:41:22",18773,"3.2.3","x86_64","mingw32","evaluate","0.8","US",10935',
  u'"2015-12-12","13:06:32",494138,"3.2.3","x86_64","linux-gnu","rjson","0.2.15","KR",655',
  u'"2015-12-12","03:50:05",140207,NA,NA,NA,"SACOBRA","0.7","DE",129',
@@ -263,7 +263,23 @@ After counting by `reduce` method, I may want to know the rankings of these pack
  (1, u'em2'),
  (1, u'DART')]
 ```
+Other than sorting by key (normally it's the first element in each observation), we can also specify by which element to sort using method `sortBy`, 
 
+```python
+>>> package_count.sortBy(lambda x:x[1]).take(5)  # default ascending is True
+[(u'TSjson', 1),
+ (u'ebayesthresh', 1),
+ (u'parspatstat', 1),
+ (u'gppois', 1),
+ (u'JMLSD', 1)]
+ 
+>>> package_count.sortBy(lambda x:x[1], ascending = False).take(5)
+[(u'Rcpp', 4783),
+ (u'ggplot2', 3913),
+ (u'stringi', 3748),
+ (u'stringr', 3449),
+ (u'plyr', 3436)]
+```
 
 ### Filter
 We can consider `filter` as the `SELECT * from TABLE WHERE ???` statement in SQL. It can help return a new dataset formed by selecting those elements of the source on which the function specified by user returns true.
@@ -322,7 +338,7 @@ One point we need to take note of is that if each line of our data is an array i
 
 ### Join
 
-Once again, I have found the data process methods in Spark is quite similar to that in SQL, like I can use `join` method in Spark, which is a great news! **Outer joins** are also supported through `leftOuterJoin`, `rightOuterJoin`, and `fullOuterJoin` [1]. Additionally, `cartesian` is available as well.
+Once again, I have found the data process methods in Spark is quite similar to that in SQL, like I can use `join` method in Spark, which is a great news! **Outer joins** are also supported through `leftOuterJoin`, `rightOuterJoin`, and `fullOuterJoin` [1]. Additionally, `cartesian` is available as well (please note [Spark SQL](https://spark.apache.org/sql/) is available for similar purpose and would be preferred & recommended).
 
 When called on datasets of type (K, V) and (K, W), returns a dataset of (K, (V, W)) pairs with all pairs of elements for each key[1].
 
@@ -336,7 +352,7 @@ When called on datasets of type (K, V) and (K, W), returns a dataset of (K, (V, 
 >>> mapping=sc.parallelize(mapping)
 
 # join
->>> content_modified.join(mapping).takeSample(1, 8)
+>>> content_modified.join(mapping).takeSample(False, 8)
 [
 (u'CN', ([u'2015-12-12', u'19:26:01', u'512', u'NA', u'NA', u'NA', u'reweight', u'1.01', u'CN', u'4721'], 'China')), 
 (u'US', ([u'2015-12-12', u'18:15:11', u'14271399', u'3.2.1', u'x86_64', u'mingw32', u'stringi', u'1.0-1', u'US', u'11837'], 'United States')), 
@@ -350,7 +366,7 @@ When called on datasets of type (K, V) and (K, W), returns a dataset of (K, (V, 
 
 # left outer join. 
 # In the mapping table, we only gave the mappings of four countries, so we found some 'None' values in the returned result below
->>> content_modified.leftOuterJoin(mapping).takeSample(1, 8)
+>>> content_modified.leftOuterJoin(mapping).takeSample(False, 8)
 [
 (u'US', ([u'2015-12-12', u'15:43:03', u'153892', u'3.2.2', u'i386', u'mingw32', u'gridBase', u'0.4-7', u'US', u'8922'], 'United States')), 
 (u'CN', ([u'2015-12-12', u'19:59:37', u'82833', u'3.2.3', u'x86_64', u'mingw32', u'rgcvpack', u'0.1-4', u'CN', u'41'], 'China')), 
@@ -368,14 +384,25 @@ Some RDDs may be repeatedly accessed, like the RDD *content* in the example abov
 
 Spark automatically monitors cache usage on each node and drops out old data partitions in a least-recently-used (LRU) fashion. Of course we can also manually remove an RDD instead of waiting for it to fall out of the cache, using the RDD.unpersist() method.
 
+We can also use `.is_cached` to check whether a RDD is already cached or not.
+
 ```python
 >>> content.cache()
+>>> content.is_cached
+True
 >>> content.unpersist()
+>>> content.is_cached
+False
 
 #or
 
 >>> content.persist()
+>>> content.is_cached
+True
 >>> content.unpersist()
+>>> content.is_cached
+False
+
 ```
 
 Please note caching may make little or even no difference when the data is small. But it will be significantly efficient when we're trying to handle big-size data in distributed fashion (instead of single-node mode) [1].
