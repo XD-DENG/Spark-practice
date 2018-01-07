@@ -338,7 +338,7 @@ One point we need to take note of is that if each line of our data is an array i
 
 ### Join
 
-Once again, I have found the data process methods in Spark is quite similar to that in SQL, like I can use `join` method in Spark, which is a great news! **Outer joins** are also supported through `leftOuterJoin`, `rightOuterJoin`, and `fullOuterJoin` [1]. Additionally, `cartesian` is available as well.
+Once again, I have found the data process methods in Spark is quite similar to that in SQL, like I can use `join` method in Spark, which is a great news! **Outer joins** are also supported through `leftOuterJoin`, `rightOuterJoin`, and `fullOuterJoin` [1]. Additionally, `cartesian` is available as well (please note [Spark SQL](https://spark.apache.org/sql/) is available for similar purpose and would be preferred & recommended).
 
 When called on datasets of type (K, V) and (K, W), returns a dataset of (K, (V, W)) pairs with all pairs of elements for each key[1].
 
