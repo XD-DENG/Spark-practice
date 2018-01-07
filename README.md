@@ -263,7 +263,23 @@ After counting by `reduce` method, I may want to know the rankings of these pack
  (1, u'em2'),
  (1, u'DART')]
 ```
+Other than sorting by key (normally it's the first element in each observation), we can also specify by which element to sort using method `sortBy`, 
 
+```python
+>>> package_count.sortBy(lambda x:x[1]).take(5)  # default ascending is True
+[(u'TSjson', 1),
+ (u'ebayesthresh', 1),
+ (u'parspatstat', 1),
+ (u'gppois', 1),
+ (u'JMLSD', 1)]
+ 
+>>> package_count.sortBy(lambda x:x[1], ascending = False).take(5)
+[(u'Rcpp', 4783),
+ (u'ggplot2', 3913),
+ (u'stringi', 3748),
+ (u'stringr', 3449),
+ (u'plyr', 3436)]
+```
 
 ### Filter
 We can consider `filter` as the `SELECT * from TABLE WHERE ???` statement in SQL. It can help return a new dataset formed by selecting those elements of the source on which the function specified by user returns true.
