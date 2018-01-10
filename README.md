@@ -77,9 +77,22 @@ We can directly call `pyspark` to start Spark
 ```bash
 $  ./bin/pyspark
 ```
-Instead, we can also use iPython. It can bring some convenient features like auto-completion.
+Instead, we can also use **IPython**. It can bring some convenient features like auto-completion.
 ```bash
 $  PYSPARK_DRIVER_PYTHON=ipython ./bin/pyspark
+```
+
+If you have **Jupyter** installed, you can also choose to run PySpark in *Jupyter Notebook* or *Jupyter QtConsole*.
+
+```bash
+$  PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS=notebook ./bin/pyspark
+$  PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS=qtconsole ./bin/pyspark
+```
+
+If you want to specify the Python version you prefer, you can use `PYSPARK_PYTHON`, 
+
+```bash
+$  PYSPARK_PYTHON=python3.6 ./bin/pyspark
 ```
 
 After Spark is started, a default SparkContext will be created (usually named as "sc").
