@@ -442,8 +442,7 @@ While using `spark-submit`, there are also several options we can specify, inclu
 
 Spark SQL is a Spark module for structured data processing [5]. It enables users to run SQL queries on the data within Spark. DataFrame in Spark is conceptually equivalent to a table in a relational database or a data frame in R/Python [5]. SQL queries in Spark will return results as DataFrames. Personal opinion, it's a bit more straightforward than RDD as DataFrame is just a TABLE itself.
 
-For this, please refer to the separate Jupyter Notebook file below.
-[Spark DataFrames & SQL - Basics](https://github.com/XD-DENG/Spark-practice/blob/master/Spark%20DataFrames%20%26%20SQL%20-%20Basics.ipynb)
+For this section, please refer to a separate Jupyter Notebook file [Spark DataFrames & SQL - Basics](https://github.com/XD-DENG/Spark-practice/blob/master/Spark%20DataFrames%20%26%20SQL%20-%20Basics.ipynb).
 
 
 ## References
