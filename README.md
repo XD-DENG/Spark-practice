@@ -1,10 +1,10 @@
 # Spark Practice
 
-In this repo, I tried to use Spark (PySpark) to look into a downloading log file in .CSV format. This repo can be considered as an introduction to the very basic functions of Spark. It may be helpful for those who are beginners to Spark.
+In this repo, I try to use Spark (PySpark) to look into a downloading log file in `.CSV` format. This repo can be considered as an introduction to the very basic functions of Spark. It may be helpful for those who are beginners to Spark.
 
 Please note:
- - Hadoop will not be inclued into this practice.
- - I used single-node mode here. Cluster deployment will not be discussed in this project. 
+ - Hadoop knowledge will not be covered in this practice.
+ - I used single-node mode here. Cluster deployment will not be discussed. 
 
 Additionally, we're using a real log file as sample data in this tutorial and trying to cover some operations commonly used in daily works. If you would like to get to know more operations with minimal sample data, you can refer to a seperate script I prepared, [*Basic Operations in PySpark*](https://github.com/XD-DENG/Spark-practice/blob/master/others/basic_operations.py).
 
@@ -21,7 +21,7 @@ Additionally, we're using a real log file as sample data in this tutorial and tr
   - [Collect Result ('Export' into Python)](#collect-result-export-into-python)
   - [Set Operation](#set-operation)
   - [Join](#join)
-  - [Caching](#caching)
+  - [Persisting (Caching)](#persisting-caching)
 - [4. Submitting Application](#4-submitting-application)
 - [5. Spark SQL and DataFrames](#5-spark-sql-and-dataframes)
 - [References](#references)
@@ -35,12 +35,6 @@ The environment I worked on is an Ubuntu machine. It's quite simple to install S
 Firstly, ensure that JAVA is install properly. If not, we can install by 
 ```bash
 $  sudo apt-get install openjdk-8-jdk
-```
-
-If you prefer Scala rather than Python, you need to install Scala as well.
-
-```bash
-$  sudo apt-get install scala
 ```
 
 Then we can download the latest version of Spark from http://spark.apache.org/downloads.html and unzip it. Then we can simply test if Spark runs properly by running the command below in the Spark directory
@@ -57,10 +51,8 @@ $ ./bin/spark-shell
 
 
 
-
-
 ## 2. Sample Data
-The sample data we use here is from http://cran-logs.rstudio.com/. It is the full downloads log of R packages from Rstudio's CRAN mirror on December 12 2015 (you can get the data in the `sample_data` folder of this repository). 
+The sample data we use is from http://cran-logs.rstudio.com/. It is the full downloads log of R packages from Rstudio's CRAN mirror on December 12 2015 (you can get the data in the `sample_data` folder of this repository). 
 
 ![\[pic link\]](https://github.com/XD-DENG/Spark-practice/blob/master/sample_data/data_screenshot.png?raw=true)
 
@@ -97,9 +89,11 @@ $  PYSPARK_PYTHON=python3.6 ./bin/pyspark
 
 After Spark is started, a default SparkContext will be created (usually named as "sc").
 
+
 ### Load Data
 
-The most common method used to load data is `textFile`. This method takes an URI for the file (local file or other URI like hdfs://), and will read the data in as a collections of lines. 
+The most common method used to load data is `sc.textFile`. This method takes an URI for the file (local file or other URI like `hdfs://`), and will read the data as a collections of lines. 
+
 ```python
 # Load the data
 >>> raw_content = sc.textFile("2015-12-12.csv")
@@ -113,7 +107,8 @@ The most common method used to load data is `textFile`. This method takes an URI
 421970
 ```
 
-You may want to take note of that all of Spark’s file-based input methods, including `textFile`, support running on directories, compressed files, and wildcards as well [1]. For example, you can use textFile("/my/directory"), textFile("/my/directory/*.txt"), and textFile("/my/directory/*.gz"). In our case, the two commands below will help load exactly the same data.
+You may want to note that all Spark’s file-based input methods, including `textFile`, support running on directories, compressed files, and wildcards as well [1]. For example, you can use `textFile("/my/directory")`, `textFile("/my/directory/*.txt")`, or `textFile("/my/directory/*.gz")`. In our case, the two commands below will help load exactly the same data.
+
 ```python
 >>> a = sc.textFile("2015-12-12.csv")
 >>> b = sc.textFile("2015-12-12.csv.gz")
@@ -122,11 +117,13 @@ You may want to take note of that all of Spark’s file-based input methods, inc
 >>> b.count()
 421970
 ```
-This feature also makes things much simpler when we have multiple text data files to load. By giving the directory under where these files are ("/my/directory"), we can load many data files with only one line. Additionally, we can also specify the file types we would like to load, like with `textFile("/my/directory/*.txt")`, we will only load those files with `.txt` file type in the directory we specified.
+
+This feature makes things much simpler when we have multiple text data files to load. By giving the directory under where these files are, we can load many data files with only one line. Additionally, we can also use wildcards to specify the file types we would like to load, like with `textFile("/my/directory/*.txt")`, we will only load those files with `.txt` file type in the directory we specified.
 
 
 ### Show the Head (First `n` rows)
 We can use `take` method to return first `n` rows.
+
 ```python
 >>> raw_content.take(5)
 [u'"date","time","size","r_version","r_arch","r_os","package","version","country","ip_id"',
@@ -135,7 +132,9 @@ We can use `take` method to return first `n` rows.
  u'"2015-12-12","13:42:35",2077876,"3.2.2","i386","mingw32","UsingR","2.0-5","CZ",1',
  u'"2015-12-12","13:42:01",266724,"3.2.2","i386","mingw32","gridExtra","2.0.0","CZ",1']
 ```
-We can also take samples randomly with `takeSample` method. With `takeSample` method, we can give three arguments and need to give at least two of them. They are "if replacement", "number of samples", and "seed" (optional).
+
+We can also take samples randomly with `takeSample` method. With `takeSample` method, we can give three arguments and need to give at least two of them. They are `if replacement`, `number of samples`, and `seed` (optional).
+
 ```python
 >>> raw_content.takeSample(True, 5, 3)
 [u'"2015-12-12","16:41:22",18773,"3.2.3","x86_64","mingw32","evaluate","0.8","US",10935',
@@ -144,12 +143,14 @@ We can also take samples randomly with `takeSample` method. With `takeSample` me
  u'"2015-12-12","21:40:13",622505,"3.2.3","x86_64","linux-gnu","stratification","2.2-5","US",4860',
  u'"2015-12-12","23:52:06",805204,"3.2.2","x86_64","mingw32","readxl","0.1.0","CA",104']
 ```
-If we specified the last argument, i.e. seed, then we can reproduce the samples exactly.
+
+If we specified the last argument, i.e. `seed`, we would be able to reproduce the samples exactly.
 
 
 ### Transformation (map & flatMap)
 
-We may note that each row of the data is a character string, and it would be more convenient to have an array instead. So we use `map` to transform them and use `take` method to get the first three rows to check how the resutls look like.
+We may need to note that each row of the data is a character string, and it would be more convenient to have an array in some senarios. We can use `map` to transform them and use `take` method to get the first a few rows to check how the resutls look like.
+
 ```python
 >>> content = raw_content.map(lambda x: x.split(','))
 >>> content.take(3)
@@ -159,11 +160,12 @@ We may note that each row of the data is a character string, and it would be mor
 [u'"2015-12-12"', u'"13:24:37"', u'1236751', u'"3.2.2"', u'"x86_64"', u'"mingw32"', u'"RJSONIO"', u'"1.3-0"', u'"DE"', u'2']
 ]
 ```
-I would say `map(function)` method is one of the most basic and important methods in Spark. It returns a new distributed dataset formed by passing each element of the source through a function specified by user [1]. 
 
-There are several ways to define the functions for `map`. Normally, we can use *lambda* function to do this, just like what I did above. This is suitable for simple functions (one line statement). For more complicated process, we can also define a separate function in Python fashion and call it within `map` method. 
+`map(function)` method is one of the most basic and important methods in Spark. It returns a new distributed dataset formed by passing each element of the source through a function specified by user [1]. 
 
-We have an example here: you may have noted the doube quotation marks in the imported data above, and I want to remove all of them in each element of our data
+There are several ways to define the functions for `map`. Normally, we can use *lambda* function to do this, just like what I did above. This is suitable for simple functions (one line statement). For more complicated process, we can also define a separate function in Python fashion and invoke it within `map` method. 
+
+We have an example here: you may have noted the double quotation marks in the imported data above, and I want to remove all of them in each element of our data
 
 ```python
 # remove the double quotation marks in the imported data
@@ -186,6 +188,7 @@ We can also use multiple `map` operators in a single statement. For example, `ra
 The same function-defining approach is also applicable to `filter` method which will be introduced later.
 
 You may have noted that there is another method named `flatMap`. Then what's the difference between `map` and `flatMap`? We can look into a simple example firstly.
+
 ```python
 >>> text=["a b c", "d e", "f g h"]
 >>> sc.parallelize(text).map(lambda x:x.split(" ")).collect()
@@ -193,13 +196,15 @@ You may have noted that there is another method named `flatMap`. Then what's the
 >>> sc.parallelize(text).flatMap(lambda x:x.split(" ")).collect()
 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 ```
+
 To put it simple (maybe not precise), we can say that `map` will return a **sequence** of the same length as the original data. In this sequence each element is a **sub-sequence** corresponding to one element in original data. `flatMap` will return a sequence whose length equals to the sum of the lengths of all sub-sequance returned by `map`.       
 
 
 
 ### Reduce and Counting
 
-Here I would like to know how many downloading records each package has. For example, for R package "Rcpp", I want to know how many rows belong to it.
+I would like to know how many downloading records each package has. For example, for R package "Rcpp", I want to know how many rows belong to it.
+
 ```python
 >>> # Note here x[6] is just the 7th element of each row, that is the package name.
 >>> package_count = content.map(lambda x: (x[6], 1)).reduceByKey(lambda a,b: a+b)
@@ -226,7 +231,9 @@ To achive the same purpose, we can also use `countByKey` method. The result retu
 >>> package_count_2['stm']
 25
 ```
-Please note that `countByKey` method ONLY works on RDDs of type (K, V), returning a hashmap of (K, int) pairs with the COUNT of each key [1]. And the value of `V` will NOT affect the result! Just like the example below.
+
+Please note that `countByKey` method ONLY works on RDDs of type (K, V), returning a hashmap of (K, int) pairs with the COUNT of each key [1]. **The value of `V` will NOT affect results from `countByKey`!** Just like the example below.
+
 ```python
 >>> package_count_2 = content.map(lambda x: (x[6], 1)).countByKey()
 >>> package_count_2['ggplot2']
@@ -245,9 +252,10 @@ Please note that `countByKey` method ONLY works on RDDs of type (K, V), returnin
 
 ### Sorting
 
-After counting by `reduce` method, I may want to know the rankings of these packages based on how many downloads they have. Then we need to use `sortByKey` method. Please note: 
-* The 'Key' here refers to the first element of each array.
-* The argument of `sortByKey` (0 or 1) will determine if we're sorting descently ('0') or ascently ('1').
+After counting using `reduce` method, I may want to know the rankings of these packages based on how many downloads they have. Then we need to use `sortByKey` method. Please note: 
+
+* The 'Key' here refers to the first element of each tuple.
+* The argument of `sortByKey` (0 or 1) will determine if we're sorting descently ('0', or `False`) or ascently ('1', or `True`).
 
 ```python
 # Sort DESCENTLY and get the first 10
@@ -276,7 +284,8 @@ After counting by `reduce` method, I may want to know the rankings of these pack
  (1, u'em2'),
  (1, u'DART')]
 ```
-Other than sorting by key (normally it's the first element in each observation), we can also specify by which element to sort using method `sortBy`, 
+
+Other than sorting by key (normally it's the first element in each tuple), we can also specify by which element to sort using method `sortBy`, 
 
 ```python
 >>> package_count.sortBy(lambda x:x[1]).take(5)  # default ascending is True
@@ -294,10 +303,11 @@ Other than sorting by key (normally it's the first element in each observation),
  (u'plyr', 3436)]
 ```
 
-### Filter
-We can consider `filter` as the `SELECT * from TABLE WHERE ???` statement in SQL. It can help return a new dataset formed by selecting those elements of the source on which the function specified by user returns true.
 
-For example, I would want to obtain these downloading records of R package "Rtts" from China (CN), then the condition is "package == 'Rtts' AND country = 'CN'".
+### Filter
+We can consider `filter` as the `SELECT * from TABLE WHERE ???` statement in SQL. It can help return a new dataset formed by selecting those elements on which the function specified by user returns `True`.
+
+For example, I would like to obtain these downloading records of R package "Rtts" from China (CN), then the condition is "package == 'Rtts' AND country = 'CN'".
 
 ```python
 >>> content.filter(lambda x: x[6] == 'Rtts' and x[8] == 'CN').count()
@@ -310,7 +320,8 @@ For example, I would want to obtain these downloading records of R package "Rtts
 
 All the operations I listed above were done as RDD (Resilient Distributed Datasets). We can say that they were implemented 'within' Spark. And we may want to transfer some dataset into Python itself.
 
-`take` method we used above can help us fulfill this purpose partially. But we also have `collect` method to do this, and the difference between `collect` and `take` is that the former will return all the elements in the dataset by default and the later one will return the first `n` rows (`n` is specified by user).
+`take` method we used above can help us fulfill this purpose partially. But we also have `collect` method to do this, and the difference between `collect` and `take` is that the former will return all the elements in the dataset by default and the later one will return the first `n` rows (`n` is specified by user). Meanwhile, we also need to be careful when we use `collect`, since you may run out of your memory on Master node. In some references, it's suggested to NEVER use `collect()` in production.
+
 ```python
 >>> temp = content.filter(lambda x: x[6] == 'Rtts' and x[8] == 'US').collect()
 
@@ -324,8 +335,11 @@ All the operations I listed above were done as RDD (Resilient Distributed Datase
 ]
 ```
 
+
 ### Set Operation
-Like the set operators in Oracle SQL, we can do set operations in Spark. Here we would introduce `union`, `intersection`, and `distinct`. We can make intuitive interpretations as below.
+
+Like the set operators in vanilla SQL, we can do set operations in Spark. Here we would introduce `union`, `intersection`, and `distinct`. We can make intuitive interpretations as below.
+
 - *union of A and B*: return elements of A AND elements of B.
 - *intersection of A and B*: return these elements existing in both A and B.
 - *distinct of A*: return the distinct values in A. That is, if element `a` appears more than once, it will only appear once in the result returned.
@@ -345,13 +359,15 @@ Like the set operators in Oracle SQL, we can do set operations in Spark. Here we
 >>> raw_content.distinct().count()
 421553
 ```
-One point we need to take note of is that if each line of our data is an array instead of a string, `intersection` and `distinct` methods can't work properly. This is why I used `raw_content` instead of `content` here as example.
+
+**We may need to note that if each line of our data is an array instead of a string, `intersection` and `distinct` methods can't work properly**. This is why I used `raw_content` instead of `content` here as example.
+
 
 
 
 ### Join
 
-Once again, I have found the data process methods in Spark is quite similar to that in SQL, like I can use `join` method in Spark, which is a great news! **Outer joins** are also supported through `leftOuterJoin`, `rightOuterJoin`, and `fullOuterJoin` [1]. Additionally, `cartesian` is available as well (please note [Spark SQL](https://spark.apache.org/sql/) is available for similar purpose and would be preferred & recommended).
+Once again, I have found the data process methods in Spark is quite similar to that in SQL, like I can use `join` method in Spark, which is a great news! **Outer joins** are also supported through `leftOuterJoin`, `rightOuterJoin`, and `fullOuterJoin` [1]. Additionally, `cartesian` is available as well (**please note [Spark SQL](https://spark.apache.org/sql/) is available for similar purpose and would be preferred & recommended**).
 
 When called on datasets of type (K, V) and (K, W), returns a dataset of (K, (V, W)) pairs with all pairs of elements for each key[1].
 
@@ -391,9 +407,10 @@ When called on datasets of type (K, V) and (K, W), returns a dataset of (K, (V, 
 (u'US', ([u'2015-12-12', u'15:43:08', u'35212', u'3.2.2', u'x86_64', u'mingw32', u'reshape2', u'1.4.1', u'US', u'8922'], 'United States'))]
 ```
 
-### Caching
 
-Some RDDs may be repeatedly accessed, like the RDD *content* in the example above. In such situation, we may want to pull such RDDs into cluster-wide in-memory cache so that the computing relating to them will not be repeatedly implemented, which can help save resource and time. This is called "caching" in Spark, and can be done using RDD.cache() or RDD.persist() method. 
+### persisting (Caching)
+
+Some RDDs may be repeatedly accessed, like the RDD *content* in the example above. In such scenario, we may want to pull such RDDs into cluster-wide in-memory cache so that the computing relating to them will not be repeatedly invoked, so that resource and time can be saved. This is called "persisting" or "caching" in Spark, and can be done using `RDD.persist()` or `RDD.cache()` method. 
 
 Spark automatically monitors cache usage on each node and drops out old data partitions in a least-recently-used (LRU) fashion. Of course we can also manually remove an RDD instead of waiting for it to fall out of the cache, using the RDD.unpersist() method.
 
@@ -418,7 +435,7 @@ False
 
 ```
 
-Please note caching may make little or even no difference when the data is small. But it will be significantly efficient when we're trying to handle big-size data in distributed fashion (instead of single-node mode) [1].
+Please note caching may make little or even no difference when the data is small. In some case, persisting your RDDs may even make your application slower if the functions that computed your datasets are too simple. So do choose proper storage level when you persist your RDDs [6].
 
 
 ## 4. Submitting Application
@@ -455,6 +472,8 @@ For this section, please refer to a separate Jupyter Notebook file [Spark DataFr
 [4] Spark Configuration, http://spark.apache.org/docs/latest/configuration.html
 
 [5] Spark SQL, DataFrames and Datasets Guide, http://spark.apache.org/docs/latest/sql-programming-guide.html
+
+[6] Which Storage Level to Choose?, https://spark.apache.org/docs/latest/rdd-programming-guide.html#which-storage-level-to-choose
 
 
 ## License
