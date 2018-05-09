@@ -5,6 +5,7 @@ In this repo, I try to use Spark (PySpark) to look into a downloading log file i
 Please note:
  - Hadoop knowledge will not be covered in this practice.
  - I used single-node mode here. Cluster deployment will not be discussed. 
+ - If you're also interested in using Scala for Spark rather than Python, you can refer to my another GitHub repo [spark-practice-scala](https://github.com/XD-DENG/spark-practice-scala).
 
 Additionally, we're using a real log file as sample data in this tutorial and trying to cover some operations commonly used in daily works. If you would like to get to know more operations with minimal sample data, you can refer to a seperate script I prepared, [*Basic Operations in PySpark*](https://github.com/XD-DENG/Spark-practice/blob/master/others/basic_operations.py).
 
